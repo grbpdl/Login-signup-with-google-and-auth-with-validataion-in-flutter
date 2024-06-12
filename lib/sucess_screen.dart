@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_flutter_width/widget/button_widget.dart';
 import 'package:flutter/material.dart';
 
 class Sucess extends StatelessWidget {
-  const Sucess({super.key});
+  Sucess({super.key});
+  final user = FirebaseAuth.instance.currentUser!;
 
   @override
   Widget build(BuildContext context) {
@@ -11,10 +13,10 @@ class Sucess extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Center(
+          Center(
               child: Text(
-            "Sucessful",
-            style: TextStyle(
+            "Sucessful as${user.email}",
+            style: const TextStyle(
                 fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold),
           )),
           const SizedBox(
@@ -29,5 +31,7 @@ class Sucess extends StatelessWidget {
     );
   }
 
-  void logout() {}
+  void logout() {
+    FirebaseAuth.instance.signOut();
+  }
 }

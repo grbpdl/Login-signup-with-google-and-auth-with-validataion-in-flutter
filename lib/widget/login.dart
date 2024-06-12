@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_flutter_width/main.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'button_widget.dart';
 
@@ -48,9 +51,39 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void loginApi() async {}
+  void loginApi() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: usernameController.text, password: passwordController.text);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        showErrorSnackbar('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        showErrorSnackbar('The account already exists for that email.');
+      }
+    } catch (e) {
+      showErrorSnackbar(e.toString());
+    }
+  }
 
-  void googleLoginApi() {}
+  Future<dynamic> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      return await FirebaseAuth.instance.signInWithCredential(credential);
+    } on Exception catch (e) {
+      // TODO
+      print('exception->$e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
           const SizedBox(height: 18),
           Button(
             btnName: 'Login with Google',
-            callBack: googleLoginApi,
+            callBack: signInWithGoogle,
           ),
         ],
       ),
